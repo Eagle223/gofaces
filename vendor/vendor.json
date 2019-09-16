@@ -1,0 +1,37 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "qlEzrgKgIkh7y0ePm9BNo1cNdXo=",
+			"path": "github.com/gin-contrib/sse",
+			"revision": "43f0f29dbd2b3f0feeebff91fd9cda22db296938",
+			"revisionTime": "2019-09-05T05:13:34Z"
+		},
+		{
+			"checksumSHA1": "4KthiFtfVweFF0i4vVEPS9qMi5k=",
+			"path": "github.com/gin-gonic/gin",
+			"revision": "b562fed3aa28c6e6d0299406d6b06bcb16a498cc",
+			"revisionTime": "2019-09-11T10:10:39Z"
+		},
+		{
+			"checksumSHA1": "YVmkm8rchyirBqjRyN/G+ULrpDo=",
+			"path": "github.com/gin-gonic/gin/binding",
+			"revision": "b562fed3aa28c6e6d0299406d6b06bcb16a498cc",
+			"revisionTime": "2019-09-11T10:10:39Z"
+		},
+		{
+			"checksumSHA1": "rST0S8cuVbM57VmJhWXhKNUkKTc=",
+			"path": "github.com/gin-gonic/gin/internal/json",
+			"revision": "b562fed3aa28c6e6d0299406d6b06bcb16a498cc",
+			"revisionTime": "2019-09-11T10:10:39Z"
+		},
+		{
+			"checksumSHA1": "lbL3cOGzkGouMKZ+lAYnXgOa/DE=",
+			"path": "github.com/gin-gonic/gin/render",
+			"revision": "b562fed3aa28c6e6d0299406d6b06bcb16a498cc",
+			"revisionTime": "2019-09-11T10:10:39Z"
+		}
+	],
+	"rootPath": "gofaces"
+}
