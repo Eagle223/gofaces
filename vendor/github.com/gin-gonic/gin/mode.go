@@ -71,16 +71,10 @@ func DisableBindValidation() {
 	binding.Validator = nil
 }
 
-// EnableJsonDecoderUseNumber sets true for binding.EnableDecoderUseNumber to
+// EnableJsonDecoderUseNumber sets true for binding.EnableDecoderUseNumberto to
 // call the UseNumber method on the JSON Decoder instance.
 func EnableJsonDecoderUseNumber() {
 	binding.EnableDecoderUseNumber = true
-}
-
-// EnableJsonDisallowUnknownFields sets true for binding.EnableDecoderDisallowUnknownFields to
-// call the DisallowUnknownFields method on the JSON Decoder instance.
-func EnableJsonDecoderDisallowUnknownFields() {
-	binding.EnableDecoderDisallowUnknownFields = true
 }
 
 // Mode returns currently gin mode.

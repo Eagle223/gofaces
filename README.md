@@ -30,4 +30,11 @@ go语言的边缘计算摄像头设备
     Libs: -L${libdir} -ldlib -lblas -llapack
     Cflags: -I${includedir}
     Requires: libpng
+3、ffmpeg 安装
+    
+    #sudo apt-get install ffmpeg
 
+    
+    
+    
+    

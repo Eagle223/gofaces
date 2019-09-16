@@ -78,7 +78,6 @@ var (
 	MsgPack       = msgpackBinding{}
 	YAML          = yamlBinding{}
 	Uri           = uriBinding{}
-	Header        = headerBinding{}
 )
 
 // Default returns the appropriate Binding instance based on the HTTP method

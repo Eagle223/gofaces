@@ -70,14 +70,12 @@ func mapping(value reflect.Value, field reflect.StructField, setter setter, tag 
 		return isSetted, nil
 	}
 
-	if vKind != reflect.Struct || !field.Anonymous {
-		ok, err := tryToSetValue(value, field, setter, tag)
-		if err != nil {
-			return false, err
-		}
-		if ok {
-			return true, nil
-		}
+	ok, err := tryToSetValue(value, field, setter, tag)
+	if err != nil {
+		return false, err
+	}
+	if ok {
+		return true, nil
 	}
 
 	if vKind == reflect.Struct {
@@ -85,8 +83,7 @@ func mapping(value reflect.Value, field reflect.StructField, setter setter, tag 
 
 		var isSetted bool
 		for i := 0; i < value.NumField(); i++ {
-			sf := tValue.Field(i)
-			if sf.PkgPath != "" && !sf.Anonymous { // unexported
+			if !value.Field(i).CanSet() {
 				continue
 			}
 			ok, err := mapping(value.Field(i), tValue.Field(i), setter, tag)
@@ -126,7 +123,9 @@ func tryToSetValue(value reflect.Value, field reflect.StructField, setter setter
 	for len(opts) > 0 {
 		opt, opts = head(opts, ",")
 
-		if k, v := head(opt, "="); k == "default" {
+		k, v := head(opt, "=")
+		switch k {
+		case "default":
 			setOpt.isDefaultExists = true
 			setOpt.defaultValue = v
 		}
@@ -264,24 +263,6 @@ func setTimeField(val string, structField reflect.StructField, value reflect.Val
 	timeFormat := structField.Tag.Get("time_format")
 	if timeFormat == "" {
 		timeFormat = time.RFC3339
-	}
-
-	switch tf := strings.ToLower(timeFormat); tf {
-	case "unix", "unixnano":
-		tv, err := strconv.ParseInt(val, 10, 0)
-		if err != nil {
-			return err
-		}
-
-		d := time.Duration(1)
-		if tf == "unixnano" {
-			d = time.Second
-		}
-
-		t := time.Unix(tv/int64(d), tv%int64(d))
-		value.Set(reflect.ValueOf(t))
-		return nil
-
 	}
 
 	if val == "" {
