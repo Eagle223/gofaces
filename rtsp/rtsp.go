@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os/exec"
-	"sort"
 	"strconv"
 	"time"
 )
@@ -74,10 +73,9 @@ func VideoCaptureStop1(pid string, ch chan<- string) {
 
 func GetLatestImage() string {
 	imgDir := strconv.Itoa(time.Now().Hour()) + "-" + strconv.Itoa(time.Now().Day()) + "-" + time.Now().Month().String() + "-" + strconv.Itoa(time.Now().Year())
-
 	files, err := ioutil.ReadDir(ImgRootUrl + imgDir + "/")
-	sort.Slice(files, func(i, j int) bool {
-
-		return false
-	})
+	if err != nil {
+		log.Println("read Dir error")
+	}
+	return imgDir + "/" + files[len(files)].Name()
 }
