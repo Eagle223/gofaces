@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"gofaces/imageprocess"
 	"gofaces/rtsp"
 )
 
@@ -13,6 +14,8 @@ func Init() {
 	api := Router.Group("api/v1")
 	api.GET("/startVideoCapture", rtsp.VideoCaptureStart)
 	api.GET("/stopVideoCapture", rtsp.VideoCaptureStop)
+	api.GET("/buildFaceModle", imageprocess.BuildFaceModle)
+	api.GET("/classifyFace", imageprocess.ClassifyFace)
 	Router.Run()
 
 }

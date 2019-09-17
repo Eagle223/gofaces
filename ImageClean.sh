@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -rf ~/rtmp/images/*
+rm -rf ~/rtmp/*
