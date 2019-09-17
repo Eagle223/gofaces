@@ -2,17 +2,21 @@ package rtsp
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"log"
 	"os/exec"
-	"strings"
+	"sort"
+	"strconv"
+	"time"
 )
 
-//ffmpeg -i "rtsp://admin:YHDYPD@192.168.184.180:554/h264/ch1/main/av_stream" -r 1 /home/eagle/rtmp/images/image%d.jpg 每秒截取一张图片
+//ffmpeg -i "rtsp://admin:YHDYPD@192.168.184.180:554/h264/ch1/main/av_stream" -r 1  -y /home/eagle/rtmp/images/image%d.jpg 每秒截取一张图片
 //ffmpeg -y -i "rtmp://58.200.131.2:1935/livetv/hunantv" -ss 00:00:01 -vframes 1 -f image2 /home/eagle/rtmp/images/image1.jpg
 
 const RtspUrl = "rtsp://admin:YHDYPD@192.168.184.180:554/h264/ch1/main/av_stream"
 const ImgRootUrl = "/home/eagle/rtmp/"
+
+var classifyPID int
 
 /*
 * ffmpeg 参数设置
@@ -27,16 +31,16 @@ const ImgRootUrl = "/home/eagle/rtmp/"
 *
  */
 
-func VideoCaptureStart1(imgNames string, ch chan<- string) {
-	commandFmt := "ffmpeg -i \"%v\" -r 1 %v"
-	img := ImgRootUrl + imgNames
+func VideoCaptureStart1(imgName string, imgDir string, ch chan<- string) {
+	commandFmt := "ffmpeg  -y -i \"%v\" -r 1 %v"
+	img := ImgRootUrl + imgDir
+	log.Println("mkdir -p ", img)
 	mkdir := exec.Command("mkdir", "-p", img)
 	err := mkdir.Run()
 	if err != nil {
-		ch <- fmt.Sprintf("mkdir erro:%v", err)
-		return
+		log.Println("mkdir erro:%v", err)
 	}
-	img = img + "/image%d.jpg"
+	img = img + "/" + imgName
 	command := fmt.Sprintf(commandFmt, RtspUrl, img)
 	log.Println(command)
 	cmd := exec.Command("sh", "-c", command)
@@ -47,6 +51,7 @@ func VideoCaptureStart1(imgNames string, ch chan<- string) {
 		return
 	}
 	ch <- "success"
+	ch <- strconv.Itoa(cmd.Process.Pid + 1)
 	cmd.Wait()
 	mkdir.Wait()
 }
@@ -54,8 +59,8 @@ func VideoCaptureStart1(imgNames string, ch chan<- string) {
 /*
 * 安全的结束ffmpeg进程
  */
-func VideoCaptureStop1(ch chan<- string) {
-	cmd := exec.Command("sh", "-c", "pkill ffmpeg")
+func VideoCaptureStop1(pid string, ch chan<- string) {
+	cmd := exec.Command("sh", "-c", "kill "+pid)
 	err := cmd.Run()
 	if err != nil {
 		log.Println("ffmpeg close error:%v", err)
@@ -67,35 +72,12 @@ func VideoCaptureStop1(ch chan<- string) {
 	cmd.Wait()
 }
 
-func VideoCaptureStart(c *gin.Context) {
-	imgName := "/images/"
-	ch := make(chan string)
-	go VideoCaptureStart1(imgName, ch)
-	rec := <-ch
-	log.Println(rec)
-	if 0 == strings.Compare("success", rec) {
-		c.JSON(200, gin.H{
-			"message": "操作完成",
-			"rtspUrl": RtspUrl,
-		})
-	} else {
-		c.JSON(500, gin.H{
-			"message": rec,
-		})
-	}
-}
+func GetLatestImage() string {
+	imgDir := strconv.Itoa(time.Now().Hour()) + "-" + strconv.Itoa(time.Now().Day()) + "-" + time.Now().Month().String() + "-" + strconv.Itoa(time.Now().Year())
 
-func VideoCaptureStop(c *gin.Context) {
-	ch := make(chan string)
-	go VideoCaptureStop1(ch)
-	rec := <-ch
-	if 0 == strings.Compare("success", rec) {
-		c.JSON(200, gin.H{
-			"message": "关闭成功",
-		})
-	} else {
-		c.JSON(500, gin.H{
-			"message": rec,
-		})
-	}
+	files, err := ioutil.ReadDir(ImgRootUrl + imgDir + "/")
+	sort.Slice(files, func(i, j int) bool {
+
+		return false
+	})
 }
