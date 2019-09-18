@@ -94,12 +94,11 @@ func GetLatestImage() string {
 			rec = ImgRootUrl + imgDirLast + "/" + "classify" + strconv.Itoa(len(files)) + ".jpg"
 		}
 	}
-	go CleanOldImages()
 	return rec
 }
 
 func CleanOldImages() {
-	timeOld := time.Now().Add(-time.Hour * 2)
+	timeOld := time.Now().Add(-time.Hour * 3)
 	imgDirOld := strconv.Itoa(timeOld.Hour()) + "-" + strconv.Itoa(timeOld.Day()) + "-" + timeOld.Month().String() + "-" + strconv.Itoa(timeOld.Year())
 	cmd := exec.Command("rm", "-rf", ImgRootUrl+imgDirOld)
 	err := cmd.Run()
