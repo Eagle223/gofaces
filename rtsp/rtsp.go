@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"log"
-	"os"
 	"os/exec"
 	"strconv"
 	"time"
@@ -95,14 +94,20 @@ func GetLatestImage() string {
 			rec = ImgRootUrl + imgDirLast + "/" + "classify" + strconv.Itoa(len(files)) + ".jpg"
 		}
 	}
+	go CleanOldImages()
 	return rec
 }
 
 func CleanOldImages() {
-	timeOld := time.Now().Add(-time.Hour * 3)
+	timeOld := time.Now().Add(-time.Hour * 2)
 	imgDirOld := strconv.Itoa(timeOld.Hour()) + "-" + strconv.Itoa(timeOld.Day()) + "-" + timeOld.Month().String() + "-" + strconv.Itoa(timeOld.Year())
-	log.Println(ImgRootUrl + imgDirOld)
-	os.Remove(ImgRootUrl + imgDirOld)
+	cmd := exec.Command("rm", "-rf", ImgRootUrl+imgDirOld)
+	err := cmd.Run()
+	if err != nil {
+		log.Println("clean old Images error:", err)
+	}
+	log.Println("clean:", ImgRootUrl+imgDirOld)
+	cmd.Wait()
 }
 
 func GetLatestImage1(c *gin.Context) {
