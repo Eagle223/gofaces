@@ -83,7 +83,7 @@ func GetLatestImage() string {
 	rec := "error"
 	if len(files) > 0 {
 		//当前小时才刚刚开始，没有文件写入
-		fmt.Println("maxNum:", len(files))
+		log.Println("maxNum:", len(files))
 		rec = ImgRootUrl + imgDirNow + "/" + "classify" + strconv.Itoa(len(files)) + ".jpg"
 	} else {
 		timeLast := timeNow.Add(-time.Hour)
@@ -91,15 +91,18 @@ func GetLatestImage() string {
 		imgDirLast := strconv.Itoa(timeLast.Hour()) + "-" + strconv.Itoa(timeLast.Day()) + "-" + timeLast.Month().String() + "-" + strconv.Itoa(timeLast.Year())
 		files, _ = ioutil.ReadDir(ImgRootUrl + imgDirLast + "/")
 		if len(files) > 0 {
-			fmt.Println("maxNum:", len(files))
+			log.Println("maxNum:", len(files))
 			rec = ImgRootUrl + imgDirLast + "/" + "classify" + strconv.Itoa(len(files)) + ".jpg"
 		}
 	}
-	timeOld := timeNow.Add(-time.Hour * 2)
+	return rec
+}
+
+func CleanOldImages() {
+	timeOld := time.Now().Add(-time.Hour * 2)
 	imgDirOld := strconv.Itoa(timeOld.Hour()) + "-" + strconv.Itoa(timeOld.Day()) + "-" + timeOld.Month().String() + "-" + strconv.Itoa(timeOld.Year())
 	log.Println(ImgRootUrl + imgDirOld)
 	os.Remove(ImgRootUrl + imgDirOld)
-	return rec
 }
 
 func GetLatestImage1(c *gin.Context) {

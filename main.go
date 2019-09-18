@@ -41,8 +41,10 @@ func videoCaptureHandler() {
 			log.Println("ticker time out", <-ticker.C)
 			go rtsp.VideoCaptureStop1(pid, ch)
 			<-ch
+			rtsp.CleanOldImages()
 		} else {
 			log.Fatalf("ffmpeg 出错，请检查系统")
 		}
+
 	}
 }
