@@ -99,7 +99,7 @@ func GetLatestImage() string {
 }
 
 func CleanOldImages() {
-	timeOld := time.Now().Add(-time.Hour * 2)
+	timeOld := time.Now().Add(-time.Hour * 3)
 	imgDirOld := strconv.Itoa(timeOld.Hour()) + "-" + strconv.Itoa(timeOld.Day()) + "-" + timeOld.Month().String() + "-" + strconv.Itoa(timeOld.Year())
 	log.Println(ImgRootUrl + imgDirOld)
 	os.Remove(ImgRootUrl + imgDirOld)
