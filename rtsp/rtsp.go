@@ -14,7 +14,7 @@ import (
 //ffmpeg -y -i "rtmp://58.200.131.2:1935/livetv/hunantv" -ss 00:00:01 -vframes 1 -f image2 /home/eagle/rtmp/images/image1.jpg
 
 //const RtspUrl = "rtsp://admin:YHDYPD@192.168.184.180:554/h264/ch1/main/av_stream"
-const RtspUrl = "rtmp://58.200.131.2:1935/livetv/hunantv"
+const RtspUrl = "rtsp://admin:123456@192.168.0.221:554/h264/ch1/main/av_stream"
 const ImgRootUrl = "/home/eagle/rtmp/"
 
 var classifyPID int
