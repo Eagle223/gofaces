@@ -31,11 +31,23 @@ go语言的边缘计算摄像头设备
     Cflags: -I${includedir}
     Requires: libpng
 3、ffmpeg 安装
-    
+  
     #sudo apt-get install ffmpeg
     
 环境搭建（运行环境）：
     
+4、接口调用
+    
+    IP = 192.168.0.162
+    PORT = 8080
+    FACENAME = "要建模的人脸的名字"
+    构建人脸模型
+    GET：http://$(IP):$(PORT)/api/v1/buildFaceModle?facename=$(FACENAME)
+    识别人脸：
+    GET：http://$(IP):$(PORT)/api/v1/classifyFace
+
+环境搭建（运行环境）
+
 1、构建交叉编译环境
     
     1.1、安装arm-linux-gnueabihf-交叉编译工具链：
