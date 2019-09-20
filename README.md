@@ -85,5 +85,18 @@ go语言的边缘计算摄像头设备
     cmake --build . --config Release
     
 4、安装ffmpeg
-    
+
+    ffmpeg 编译：
+    ./configure --arch=armv7a --target-os=linux  \
+    --cross-prefix=arm-linux-gnueabihf- --enable-cross-compile \
+    --enable-gpl \
+    --enable-libx264 \
+    --enable-nonfree \
+    --enable-omx \
+    --enable-omx-rpi \
+    --enable-encoder=h264_omx \
+    --enable-mmal \
+    --enable-hwaccel=h264_mmal \
+    --enable-decoder=h264_mmal  \
+    --sysroot=/root/arm-dlib/rootfs
     

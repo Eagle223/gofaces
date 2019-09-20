@@ -12,10 +12,10 @@ import (
 
 //ffmpeg -i "rtsp://admin:YHDYPD@192.168.184.180:554/h264/ch1/main/av_stream" -r 1  -y /home/eagle/rtmp/images/image%d.jpg 每秒截取一张图片
 //ffmpeg -y -i "rtmp://58.200.131.2:1935/livetv/hunantv" -ss 00:00:01 -vframes 1 -f image2 /home/eagle/rtmp/images/image1.jpg
-
+//ffmpeg -y -i "rtmp://58.200.131.2:1935/livetv/hunantv" -r 1  -y /home/gofaces/rtmp/images/image%d.jpg
 //const RtspUrl = "rtsp://admin:YHDYPD@192.168.184.180:554/h264/ch1/main/av_stream"
 const RtspUrl = "rtsp://admin:123456@192.168.0.221:554/h264/ch1/main/av_stream"
-const ImgRootUrl = "/home/eagle/rtmp/"
+const ImgRootUrl = "/home/gofaces/rtmp"
 
 var classifyPID int
 
