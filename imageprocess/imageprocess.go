@@ -63,10 +63,6 @@ func classifyFace(ch chan<- string) {
 	}
 }
 
-/*
-* 为摄像机前的人脸建立识别模型 传入人脸名字
-*
- */
 func BuildFaceModle(c *gin.Context) {
 	faceName := c.Query("facename")
 	ch := make(chan string)
@@ -83,9 +79,6 @@ func BuildFaceModle(c *gin.Context) {
 	}
 }
 
-/*
- * 识别摄像机前的人脸
- */
 func ClassifyFace(c *gin.Context) {
 	ch := make(chan string)
 	go classifyFace(ch)

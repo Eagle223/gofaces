@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -rf ~/rtmp/*
+rm -rf /home/gofaces/rtmp/*

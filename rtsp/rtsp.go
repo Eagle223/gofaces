@@ -10,27 +10,10 @@ import (
 	"time"
 )
 
-//ffmpeg -i "rtsp://admin:YHDYPD@192.168.184.180:554/h264/ch1/main/av_stream" -r 1  -y /home/eagle/rtmp/images/image%d.jpg 每秒截取一张图片
-//ffmpeg -y -i "rtmp://58.200.131.2:1935/livetv/hunantv" -ss 00:00:01 -vframes 1 -f image2 /home/eagle/rtmp/images/image1.jpg
-//ffmpeg -y -i "rtmp://58.200.131.2:1935/livetv/hunantv" -r 1  -y /home/gofaces/rtmp/images/image%d.jpg
-//const RtspUrl = "rtsp://admin:YHDYPD@192.168.184.180:554/h264/ch1/main/av_stream"
-const RtspUrl = "rtsp://admin:123456@192.168.0.221:554/h264/ch1/main/av_stream"
-const ImgRootUrl = "/home/gofaces/rtmp"
+const RtspUrl = "rtsp://admin:YHDYPD@192.168.184.180:554/h264/ch1/main/av_stream"
+const ImgRootUrl = "/home/gofaces/rtmp/"
 
 var classifyPID int
-
-/*
-* ffmpeg 参数设置
-* -i 输入流或者文件
-* -r 设置帧数Hz为单位
-* -s 设置帧大小（WxH）
-* 设计思路：
- */
-
-/*
-* 从视频中截取图片
-*
- */
 
 func VideoCaptureStart1(imgName string, imgDir string, ch chan<- string) {
 	commandFmt := "ffmpeg  -y -i \"%v\" -r 1 %v"
@@ -59,9 +42,6 @@ func VideoCaptureStart1(imgName string, imgDir string, ch chan<- string) {
 	mkdir.Wait()
 }
 
-/*
-* 安全的结束ffmpeg进程
- */
 func VideoCaptureStop1(pid string, ch chan<- string) {
 	cmd := exec.Command("sh", "-c", "kill "+pid)
 	err := cmd.Run()
@@ -81,12 +61,10 @@ func GetLatestImage() string {
 	files, _ := ioutil.ReadDir(ImgRootUrl + imgDirNow + "/")
 	rec := "error"
 	if len(files) > 0 {
-		//当前小时才刚刚开始，没有文件写入
 		log.Println("maxNum:", len(files))
 		rec = ImgRootUrl + imgDirNow + "/" + "classify" + strconv.Itoa(len(files)) + ".jpg"
 	} else {
 		timeLast := timeNow.Add(-time.Hour)
-		//查找上一个小时的最新文件返回，这里存在一个BUG,晚上00：00时会触发
 		imgDirLast := strconv.Itoa(timeLast.Hour()) + "-" + strconv.Itoa(timeLast.Day()) + "-" + timeLast.Month().String() + "-" + strconv.Itoa(timeLast.Year())
 		files, _ = ioutil.ReadDir(ImgRootUrl + imgDirLast + "/")
 		if len(files) > 0 {

@@ -43,7 +43,7 @@ func videoCaptureHandler() {
 			<-ch
 			go rtsp.CleanOldImages()
 		} else {
-			log.Fatalf("ffmpeg 出错，请检查系统")
+			log.Fatalf("ffmpeg error please check system!")
 		}
 
 	}
