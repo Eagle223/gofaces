@@ -61,3 +61,7 @@ void load_mem_jpeg(dlib::matrix<dlib::rgb_pixel>& img, const uint8_t* img_data, 
 	jpeg_finish_decompress(&cinfo);
 	jpeg_destroy_decompress(&cinfo);
 }
+
+void  load_mem_jpeg1(dlib::matrix<dlib::rgb_pixel>& img, const uint8_t* img_data, int len){
+
+}

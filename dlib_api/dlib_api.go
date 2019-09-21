@@ -1,8 +1,7 @@
 package dlib_api
 
 // #cgo pkg-config: dlib-1
-// #cgo CXXFLAGS: -std=c++1z -Wall -O3 -DNDEBUG -march=native
-// #cgo LDFLAGS: -ljpeg
+// #cgo CXXFLAGS: -std=c++1z -Wall -O3 -DNDEBUG
 // #include <stdlib.h>
 // #include <stdint.h>
 // #include "dlib_api.h"
@@ -248,8 +247,8 @@ func (rec *Recognizer) Close() {
 	rec.ptr = nil
 }
 
-func Add(a int, b int) int{
-	cintA :=C.int(a)
-	cintB :=C.int(b)
-	return int(C.facerec_add(cintA,cintB))
+func Add(a int, b int) int {
+	cintA := C.int(a)
+	cintB := C.int(b)
+	return int(C.facerec_add(cintA, cintB))
 }

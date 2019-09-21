@@ -87,3 +87,23 @@ go语言的边缘计算摄像头设备
 4、安装ffmpeg
 
     直接到ffmpeg官网下载可执行包
+    
+    交叉编译：
+    修改pkg-config中的libdir和includedir
+    rootfs=/home/eagle/arm-dlib/rootfs
+    rootlibdir=${rootfs}/usr/lib/arm-linux-gnueabihf
+    rootincdir=${rootfs}/usr/include/arm-linux-gnueabihf
+    libdir=${rootfs}/usr/local/lib
+    includedir=${rootfs}/usr/local/include
+        
+    Name: dlib
+    Description: Numerical and networking C++ library
+    Version: 19.17.0
+    Libs: -L${libdir} -ldlib -L$(rootlibdir)-lblas -L$(rootlibdir)-llapack -L${rootlibdir} -ljpeg
+    Cflags: -I${includedir} -I${rootincdir} cd 
+    Requires: libpng
+    
+    CGO_ENABLED=1 GOOS=linux GOARCH=arm \
+    CC=/home/eagle/arm-dlib/OrangePiH3_toolchain/bin/arm-linux-gnueabihf-gcc \
+    CXX=/home/eagle/arm-dlib/OrangePiH3_toolchain/bin/arm-linux-gnueabihf-g++  \
+    go build -x main.go
