@@ -13,3 +13,5 @@
 
 #Data files for dlib
 *.dat
+#IDEA
+*.idea
