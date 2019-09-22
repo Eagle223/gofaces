@@ -113,7 +113,7 @@ func (rec *Recognizer) recognize(type_ int, imgData []byte, maxFaces int) (faces
 
 	rDataLen := numFaces * rectLen
 	rDataPtr := unsafe.Pointer(ret.rectangles)
-	rData := (*[1 << 30]C.long)(rDataPtr)[:rDataLen:rDataLen]
+	rData := (*[1 << 30]C.int)(rDataPtr)[:rDataLen:rDataLen]
 
 	dDataLen := numFaces * descrLen
 	dDataPtr := unsafe.Pointer(ret.descriptors)
@@ -121,7 +121,7 @@ func (rec *Recognizer) recognize(type_ int, imgData []byte, maxFaces int) (faces
 
 	sDataLen := numFaces * numShapes * shapeLen
 	sDataPtr := unsafe.Pointer(ret.shapes)
-	sData := (*[1 << 30]C.long)(sDataPtr)[:sDataLen:sDataLen]
+	sData := (*[1 << 30]C.int)(sDataPtr)[:sDataLen:sDataLen]
 
 	for i := 0; i < numFaces; i++ {
 		face := Face{}
@@ -245,10 +245,4 @@ func (rec *Recognizer) ClassifyThreshold(testSample Descriptor, tolerance float3
 func (rec *Recognizer) Close() {
 	C.facerec_free(rec.ptr)
 	rec.ptr = nil
-}
-
-func Add(a int, b int) int {
-	cintA := C.int(a)
-	cintB := C.int(b)
-	return int(C.facerec_add(cintA, cintB))
 }

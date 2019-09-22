@@ -254,10 +254,6 @@ void facerec_free(facerec* rec) {
 	}
 }
 
-int facerec_add(int a,int b){
-    return a+b;
-}
-
 static std::vector<matrix<rgb_pixel>> jitter_image(
     const matrix<rgb_pixel>& img,
     int count
@@ -274,3 +270,4 @@ static std::vector<matrix<rgb_pixel>> jitter_image(
 
     return crops;
 }
+
