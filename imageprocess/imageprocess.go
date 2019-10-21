@@ -136,7 +136,8 @@ func BuildClassifier() int {
 
 func FaceDetections(ch chan<- string) {
 	var err error
-	var imgOld = " "
+	var imgOld = ""
+	var imgDirOld = ""
 
 	if faceRec == nil {
 		faceRec, err = dlib_api.NewRecognizer(dataDir)
@@ -166,7 +167,11 @@ func FaceDetections(ch chan<- string) {
 				results = results + "{\"time\":\"" + imgDir + "\","
 				results = results + "\"num\":" + strconv.Itoa(len(faces)) + ","
 				imgDir = rtsp.ModelRoot + imgDir
-				go SaveImages(img, imgDir)
+				if 0 != strings.Compare(imgDir, imgDirOld) {
+					/*这里会造成进程灾难*/
+					go SaveImages(img, imgDir)
+					imgDirOld = imgDir
+				}
 				log.Println("num of faces" + strconv.Itoa(len(faces)))
 				for i := 0; i < len(faces); i++ {
 					catsId := faceRec.Classify(faces[i].Descriptor)
@@ -193,7 +198,7 @@ func SaveImages(img string, imgDir string) {
 		log.Println("mkdir erro:%v", err)
 		return
 	}
-	for i := 0; i < 5; {
+	for i := 0; i < 10; {
 		img = rtsp.GetLatestImage()
 		if 0 == strings.Compare(img, imgOld) {
 			continue
