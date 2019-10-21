@@ -59,7 +59,7 @@ func VideoCaptureStart(imgName string, imgDir string) (string, string) {
 * 安全的结束ffmpeg进程
  */
 func VideoCaptureStop(pid string) string {
-	cmd := exec.Command("sh", "-c", "kill "+pid)
+	cmd := exec.Command("sh", "-c", "pkill ffmpeg")
 	err := cmd.Run()
 	if nil == err {
 		return "success"
@@ -75,6 +75,8 @@ func VideoCaptureHandler1() {
 	imgDir := strconv.Itoa(time.Now().Hour()) + "-" + strconv.Itoa(time.Now().Day()) + "-" + time.Now().Month().String() + "-" + strconv.Itoa(time.Now().Year())
 	log.Println(imgDir)
 	pid, rec := VideoCaptureStart("classify%d.jpg", imgDir)
+	log.Println("restart ffmpeg")
+	log.Println("ffmpeg pid:" + pid)
 	if 0 == strings.Compare("success", rec) {
 		ticker1 := time.NewTicker(time.Minute * time.Duration(60-time.Now().Minute()))
 		log.Println("ticker time out", <-ticker1.C)
@@ -87,7 +89,9 @@ func VideoCaptureHandler1() {
 	for true {
 		imgDir = strconv.Itoa(time.Now().Hour()) + "-" + strconv.Itoa(time.Now().Day()) + "-" + time.Now().Month().String() + "-" + strconv.Itoa(time.Now().Year())
 		log.Println(imgDir)
+		log.Println("restart ffmpeg")
 		pid, rec = VideoCaptureStart("classify%d.jpg", imgDir)
+		log.Println("ffmpeg pid:" + pid)
 		if 0 == strings.Compare("success", rec) {
 			log.Println("ffmpeg pid :", pid)
 			log.Println("ticker time out", <-ticker.C)

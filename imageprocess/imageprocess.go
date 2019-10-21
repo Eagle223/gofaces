@@ -116,7 +116,7 @@ func BuildClassifier() int {
 						if 1 == len(face) {
 							samples = append(samples, face[0].Descriptor)
 							cats = append(cats, int32(len(samples)))
-							labels = append(labels, fi.Name())
+							labels = append(labels, fi.Name()[:len(fi.Name())-4])
 							faceRec.SetSamples(samples, cats)
 							fmt.Println("get faces:" + fi.Name()[:len(fi.Name())-4])
 						}
@@ -182,7 +182,7 @@ func FaceDetections(ch chan<- string) {
 						results = results + "\"who\":\"" + labels[catsId-1] + "\","
 					}
 				}
-				results = results + "\"end:\"1}"
+				results = results + "\"end\":1}"
 				log.Println(results)
 				ch <- results
 			}
