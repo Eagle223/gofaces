@@ -134,16 +134,17 @@ func BuildClassifier() int {
 	return rec
 }
 
-func FaceDetections(ch chan<- string) {
+func FaceDetections(ch chan<- map[string]string) {
 	var err error
 	var imgOld = ""
 	var imgDirOld = ""
-
+	result := make(map[string]string)
 	if faceRec == nil {
 		faceRec, err = dlib_api.NewRecognizer(dataDir)
 		if err != nil {
 			log.Println("Can't init face recognizer: %v", err)
-			ch <- "error"
+			result["error"] = "error"
+			ch <- result
 			return
 		}
 	}
@@ -157,18 +158,19 @@ func FaceDetections(ch chan<- string) {
 		faces, err := faceRec.RecognizeFile(img)
 		if err == nil {
 			if 0 != len(faces) {
-				results := ""
 				/*将识别到的图片放到对应的文件夹中,文件以出现的时间命名（分钟）*/
 				imgDir := strconv.Itoa(time.Now().Minute()) + "-" +
 					strconv.Itoa(time.Now().Hour()) + "-" +
 					strconv.Itoa(time.Now().Day()) + "-" +
 					time.Now().Month().String() + "-" +
 					strconv.Itoa(time.Now().Year())
-				results = results + "{\"time\":\"" + imgDir + "\","
-				results = results + "\"num\":" + strconv.Itoa(len(faces)) + ","
+
+				result["time"] = imgDir
+				result["num"] = strconv.Itoa(len(faces))
 				imgDir = rtsp.ModelRoot + imgDir
 				if 0 != strings.Compare(imgDir, imgDirOld) {
 					/*这里会造成进程灾难*/
+					log.Printf("new Dir:%v, Old Dir :%v", imgDir, imgDirOld)
 					go SaveImages(img, imgDir)
 					imgDirOld = imgDir
 				}
@@ -177,14 +179,12 @@ func FaceDetections(ch chan<- string) {
 					catsId := faceRec.Classify(faces[i].Descriptor)
 					fmt.Println("catsId:" + strconv.Itoa(catsId))
 					if catsId <= 0 {
-						results = results + "\"who\":\"unknown\","
+						result["who"+strconv.Itoa(i)] = "unknown"
 					} else {
-						results = results + "\"who\":\"" + labels[catsId-1] + "\","
+						result["who"+strconv.Itoa(i)] = labels[catsId-1]
 					}
 				}
-				results = results + "\"end\":1}"
-				log.Println(results)
-				ch <- results
+				ch <- result
 			}
 		}
 	}
