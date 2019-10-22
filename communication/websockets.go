@@ -52,7 +52,7 @@ const (
 
 //var aliveList *AliveList
 var upgrader = websocket.Upgrader{}
-var addr = flag.String("addr", "localhost:8080", "聊天室地址,eg  localhost:8080")
+var addr = flag.String("addr", ":8080", "http service address")
 
 func init() {
 	log.SetFlags(log.Ldate | log.Lshortfile)

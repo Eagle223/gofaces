@@ -33,7 +33,7 @@ var classifyPID int
 *
  */
 func VideoCaptureStart(imgName string, imgDir string) (string, string) {
-	commandFmt := "ffmpeg  -y -i \"%v\" -r 5 %v"
+	commandFmt := "ffmpeg  -y -i \"%v\" -r 10 %v"
 	img := ImgRootUrl + imgDir
 	log.Println("mkdir -p ", img)
 	mkdir := exec.Command("mkdir", "-p", img)
