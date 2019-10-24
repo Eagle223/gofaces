@@ -2,7 +2,6 @@ package imageprocess
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"gofaces/dlib_api"
 	"gofaces/rtsp"
 	"io/ioutil"
@@ -20,85 +19,6 @@ var cats []int32
 var labels []string
 var samples []dlib_api.Descriptor
 var faceRec *dlib_api.Recognizer
-
-func buildFaceModle(name string, ch chan<- string) {
-	var err error
-	if faceRec == nil {
-		faceRec, err = dlib_api.NewRecognizer(dataDir)
-		if err != nil {
-			log.Println("Can't init face recognizer: %v", err)
-			ch <- "error"
-			return
-		}
-	}
-	for true {
-		img := rtsp.GetLatestImage()
-		faces, err := faceRec.RecognizeFile(img)
-		if err == nil {
-			if 1 == len(faces) {
-				samples = append(samples, faces[0].Descriptor)
-				cats = append(cats, int32(len(samples)))
-				labels = append(labels, name)
-				ch <- "success"
-				faceRec.SetSamples(samples, cats)
-				/*将识别到的图片放到对应的文件夹中*/
-
-			}
-		}
-	}
-}
-
-func classifyFace(ch chan<- string) {
-	var catsId = -1
-	for i := 1; i < 50; {
-		img := rtsp.GetLatestImage()
-		face, err := faceRec.RecognizeFile(img)
-		if err == nil {
-			if 1 == len(face) {
-				catsId = faceRec.Classify(face[0].Descriptor)
-				if catsId > 0 {
-					ch <- labels[catsId]
-					break
-				}
-			}
-			i++
-		}
-	}
-	if catsId < 0 {
-		ch <- "error"
-	}
-}
-
-func BuildFaceModle(c *gin.Context) {
-	faceName := c.Query("facename")
-	ch := make(chan string)
-	go buildFaceModle(faceName, ch)
-	rec := <-ch
-	if 0 == strings.Compare("success", rec) {
-		c.JSON(200, gin.H{
-			"message": "构建人脸模型成功",
-		})
-	} else {
-		c.JSON(500, gin.H{
-			"message": rec,
-		})
-	}
-}
-
-func ClassifyFace(c *gin.Context) {
-	ch := make(chan string)
-	go classifyFace(ch)
-	rec := <-ch
-	if 0 == strings.Compare("50", rec) {
-		c.JSON(404, gin.H{
-			"message": "未识别到",
-		})
-	} else {
-		c.JSON(200, gin.H{
-			"message": rec,
-		})
-	}
-}
 
 func BuildClassifier() int {
 	var err error
@@ -167,13 +87,6 @@ func FaceDetections(ch chan<- map[string]string) {
 
 				result["time"] = imgDir
 				result["num"] = strconv.Itoa(len(faces))
-				imgDir = rtsp.ModelRoot + imgDir
-				if 0 != strings.Compare(imgDir, imgDirOld) {
-					/*这里会造成进程灾难*/
-					log.Printf("new Dir:%v, Old Dir :%v", imgDir, imgDirOld)
-					go SaveImages(img, imgDir)
-					imgDirOld = imgDir
-				}
 				log.Println("num of faces" + strconv.Itoa(len(faces)))
 				for i := 0; i < len(faces); i++ {
 					catsId := faceRec.Classify(faces[i].Descriptor)
@@ -183,6 +96,12 @@ func FaceDetections(ch chan<- map[string]string) {
 					} else {
 						result["who"+strconv.Itoa(i)] = labels[catsId-1]
 					}
+					imgDir = imgDir + "_" + result["who"+strconv.Itoa(i)]
+
+					if 0 != strings.Compare(imgDir, imgDirOld) {
+						imgDirOld = imgDir
+						go SaveImages(img, imgDir)
+					}
 				}
 				ch <- result
 			}
@@ -191,22 +110,36 @@ func FaceDetections(ch chan<- map[string]string) {
 }
 
 func SaveImages(img string, imgDir string) {
-	var imgOld = " "
 	mkdir := exec.Command("mkdir", "-p", imgDir)
 	err := mkdir.Run()
 	if err != nil {
 		log.Println("mkdir erro:%v", err)
 		return
 	}
-	for i := 0; i < 10; {
-		img = rtsp.GetLatestImage()
-		if 0 == strings.Compare(img, imgOld) {
+	// /home/eagle/gofaces/rtmp/21-22-October-2019/classify137.jpg
+	imgNum, _ := strconv.Atoi(img[52 : len(img)-4])
+	for i := 0; i < 600; {
+		imgToCopy := img[:52] + strconv.Itoa(imgNum+i) + ".jpg"
+		cp := exec.Command("cp", imgToCopy, imgDir+"/image"+strconv.Itoa(i)+".jpg")
+		err = cp.Run()
+		if err != nil {
 			continue
 		}
-		imgOld = img
-		cp := exec.Command("cp", img, imgDir)
-		err = cp.Start()
 		cp.Wait()
+		log.Printf("copy %v to %v", imgToCopy, imgDir)
 		i++
 	}
+	/*将保存的文件转换为视频*/
+	log.Println("开始转换")
+	rtsp.BuildMp4FromImage(imgDir)
+
+	/*这里还有一个BUG,会删除失败*/
+	//cmd := exec.Command("rm", "-rf", imgDir)
+	//err = cmd.Run()
+	//if err != nil{
+	//	log.Println("删除历史失败 imgDir:",imgDir)
+	//	return
+	//}
+	//log.Println("删除历史完成 imgDir:", imgDir)
+	//cmd.Wait()
 }

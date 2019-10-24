@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gorilla/websocket"
+	"gofaces/controller"
 	"log"
 	"math/rand"
 	"net/http"
@@ -182,10 +183,8 @@ func NewWebSocket(id string, w http.ResponseWriter, r *http.Request, aliveList *
 func ServerStart(aliveList *AliveList) {
 	flag.Parse()
 	go aliveList.run()
-	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Write([]byte("hello"))
-	})
-	http.HandleFunc("/ws", aliveList.socketServer)
+	http.HandleFunc("/api/v1/camera/getHistory", controller.GetHistory)
+	http.HandleFunc("/api/v1/camera/ws", aliveList.socketServer)
 	log.Println("端口监听：", *addr)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }

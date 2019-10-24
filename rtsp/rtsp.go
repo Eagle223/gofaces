@@ -103,53 +103,6 @@ func VideoCaptureHandler1() {
 	}
 }
 
-/*
-* 从视频中截取图片
-*
- */
-func VideoCaptureStart1(imgName string, imgDir string, ch chan<- string) {
-	commandFmt := "ffmpeg  -y -i \"%v\" -r 1 %v"
-	img := ImgRootUrl + imgDir
-	log.Println("mkdir -p ", img)
-	mkdir := exec.Command("mkdir", "-p", img)
-	err := mkdir.Run()
-	if err != nil {
-		log.Println("mkdir erro:%v", err)
-		ch <- fmt.Sprintf("mkdir erro:%v", err)
-		return
-	}
-	img = img + "/" + imgName
-	command := fmt.Sprintf(commandFmt, RtspUrl, img)
-	log.Println(command)
-	cmd := exec.Command("sh", "-c", command)
-	err = cmd.Start()
-	if err != nil {
-		log.Println("ffmpeg start error:%v", err)
-		ch <- fmt.Sprint("ffmpeg start err:%v", err)
-		return
-	}
-	ch <- "success"
-	ch <- strconv.Itoa(cmd.Process.Pid + 1)
-	cmd.Wait()
-	mkdir.Wait()
-}
-
-/*
-* 安全的结束ffmpeg进程
- */
-func VideoCaptureStop1(pid string, ch chan<- string) {
-	cmd := exec.Command("sh", "-c", "kill "+pid)
-	err := cmd.Run()
-	if err != nil {
-		log.Println("ffmpeg close error:%v", err)
-		ch <- fmt.Sprintf("ffmpeg close error:%v", err)
-	} else {
-		ch <- "success"
-		log.Println("ffmpe kill finished")
-	}
-	cmd.Wait()
-}
-
 func GetLatestImage() string {
 	timeNow := time.Now()
 	imgDirNow := strconv.Itoa(timeNow.Hour()) + "-" + strconv.Itoa(timeNow.Day()) + "-" + timeNow.Month().String() + "-" + strconv.Itoa(timeNow.Year())
@@ -180,36 +133,19 @@ func CleanOldImages() {
 	cmd.Wait()
 }
 
-func VideoCaptureHandler() {
-	var pid string
-	ch := make(chan string)
-	imgDir := strconv.Itoa(time.Now().Hour()) + "-" + strconv.Itoa(time.Now().Day()) + "-" + time.Now().Month().String() + "-" + strconv.Itoa(time.Now().Year())
-	log.Println(imgDir)
-	go VideoCaptureStart1("classify%d.jpg", imgDir, ch)
-	if 0 == strings.Compare("success", <-ch) {
-		ticker1 := time.NewTicker(time.Minute * time.Duration(60-time.Now().Minute()))
-		pid = <-ch
-		log.Println("ticker time out", <-ticker1.C)
-		go VideoCaptureStop1(pid, ch)
-		<-ch
-		ticker1.Stop()
-	} else {
-		log.Fatalf("ffmpeg 出错，请检查系统")
+func BuildMp4FromImage(imgDir string) error {
+	//ffmpeg -loop 1 -f image2 -i /home/eagle/gofaces/history/22-16-22-October-2019/image%d.jpg -vcodec libx264 -r 25 -t 6 video.mp4
+	commandFmt := "ffmpeg -loop 1 -f image2 -i \"%v\" -vcodec libx264 -r 25 -t 6 %v"
+	log.Println("Convert Command:", commandFmt)
+	command := fmt.Sprintf(commandFmt, imgDir+"/image%d.jpg", ModelRoot+imgDir[len(ModelRoot):]+".mp4")
+	log.Println("commdand:", command)
+	cmd := exec.Command("sh", "-c", command)
+	err := cmd.Start()
+	if err != nil {
+		cmd.Wait()
+		return err
 	}
-	ticker := time.NewTicker(time.Hour)
-	for true {
-		imgDir = strconv.Itoa(time.Now().Hour()) + "-" + strconv.Itoa(time.Now().Day()) + "-" + time.Now().Month().String() + "-" + strconv.Itoa(time.Now().Year())
-		log.Println(imgDir)
-		go VideoCaptureStart1("classify%d.jpg", imgDir, ch)
-		if 0 == strings.Compare("success", <-ch) {
-			pid = <-ch
-			log.Println("ffmpeg pid :", pid)
-			log.Println("ticker time out", <-ticker.C)
-			go VideoCaptureStop1(pid, ch)
-			<-ch
-			go CleanOldImages()
-		} else {
-			log.Fatalf("ffmpeg error please check system!")
-		}
-	}
+	cmd.Wait()
+	log.Println("视频转换完成！")
+	return err
 }

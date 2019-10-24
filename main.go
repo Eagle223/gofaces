@@ -8,12 +8,10 @@ import (
 	"log"
 	"math/rand"
 	"strconv"
-	"strings"
 	"time"
 )
 
 func main() {
-	var timeOld = ""
 	ch := make(chan map[string]string)
 	aliveList := communication.NewAliveList()
 	go communication.ServerStart(aliveList)
@@ -25,22 +23,17 @@ func main() {
 	go imageprocess.FaceDetections(ch)
 	for true {
 		context := <-ch
-		if 0 != strings.Compare(context["time"], timeOld) {
-			timeOld = context["time"]
-			id := strconv.Itoa(rand.Intn(65536))
-			contextJson, _ := json.Marshal(context)
-			contextString := string(contextJson)
-			log.Println("main:", contextString)
-			message := communication.Message{
-				ID:      id,
-				Content: contextString,
-				SentAt:  time.Now().Unix(),
-				Type:    0,
-			}
-			aliveList.Broadcast(message)
-		} else {
-			log.Println("已经发送了信息！")
+		id := strconv.Itoa(rand.Intn(65536))
+		contextJson, _ := json.Marshal(context)
+		contextString := string(contextJson)
+		log.Println("main:", contextString)
+		message := communication.Message{
+			ID:      id,
+			Content: contextString,
+			SentAt:  time.Now().Unix(),
+			Type:    0,
 		}
+		aliveList.Broadcast(message)
 	}
 
 }
